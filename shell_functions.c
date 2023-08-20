@@ -41,7 +41,7 @@ ssize_t my_getline(char **buffer, size_t *len, FILE *stream)
         free(*buffer);
         *buffer = NULL;
         *len = 0;
-        return (0);
+        return (-1);
     }
 
     total_r = r;
@@ -52,7 +52,7 @@ ssize_t my_getline(char **buffer, size_t *len, FILE *stream)
         if ((*buffer)[i] == '\n')
         {
             (*buffer)[i] = '\0';
-            return (char_read);
+            return (i);
         }
 
         if (i == *len - 1)
@@ -67,6 +67,9 @@ ssize_t my_getline(char **buffer, size_t *len, FILE *stream)
             *len += 1024;
         }
 
+        /*break if read is zero*/
+        if (r == 0)
+           break;
         i++;
         char_read++;
     }
@@ -117,39 +120,55 @@ char *my_token(char *str, const char *delim)
 }
 
 /**
- * execute - executes a command
+ * exec - executes a command
  * @av: array of arguments
  * Return: void
  */
 
-void execute(char **av, char *args)
+void exec(char **arg)
 {
-    char *command_exec, *cmd_path;
+    char *command_exec = NULL;
+    char *cmd_path = NULL;
 
-    if (av)
+    if (arg != NULL)
     {
-        command_exec = av[0];
-        /*check if command is a path*/
+        command_exec = arg[0];
         cmd_path = handle_path(command_exec);
         if (cmd_path != NULL)
-        {
             command_exec = cmd_path;
+        /*Handle setenv built-in*/
+        if (strcmp(command_exec, "setenv") == 0)
+        {
+            int  setenv_result = _setenv(arg[1], arg[2]);
+            if (setenv_result == -1)
+                perror("setenv");
+            exit(EXIT_SUCCESS);
         }
-        
-        /*print environment*/
+        /*Handle unsetenv*/
+        if (strcmp(command_exec, "unsetenv") == 0)
+        {
+            int unsetenv_result = _unsetenv(arg[1]);
+            if (unsetenv_result == -1)
+                perror("unsetenv");
+            exit(EXIT_SUCCESS);
+        }
+        /*Handle env */
         if (strcmp(command_exec, "env") == 0)
         {
             shell_env();
+            exit(EXIT_SUCCESS);
         }
-        /*exit shell*/
-        shell_exit(command_exec, args);
 
-        /*execute command*/
-        if (execve(command_exec, av, NULL) == -1)
+        /*Handle exit*/
+        shell_exit(command_exec, arg[1]);
+        if (execve(command_exec, arg, environ) == -1)
         {
             perror("./prompt");
+            free(cmd_path);
             exit(EXIT_FAILURE);
         }
+
+        free(cmd_path);
     }
 }
 
@@ -165,7 +184,9 @@ void *handle_path(char *cmd)
     int cmd_len, path_len;
     struct stat st;
 
-    path = getenv("PATH");
+    path = _getenv("PATH");
+    if (path == NULL)
+        return (NULL);
 
     if (path != NULL)
     {
@@ -176,7 +197,7 @@ void *handle_path(char *cmd)
             exit(EXIT_FAILURE);
         }
 
-        token_path = strtok(path_copy, delim);
+        token_path = my_token(path_copy, delim);
         while (token_path != NULL)
         {
             /*get length of token_path and cmd*/
@@ -192,9 +213,9 @@ void *handle_path(char *cmd)
             }
 
             /*copy token_path to cmd_path*/
-            strcpy(cmd_path, token_path);
-            strcat(cmd_path, "/");
-            strcat(cmd_path, cmd);
+            _strcpy(cmd_path, token_path);
+            _strcat(cmd_path, "/");
+            _strcat(cmd_path, cmd);
 
             /*print cmd_path if it exists*/
             if (stat(cmd_path, &st) == 0)
@@ -206,7 +227,7 @@ void *handle_path(char *cmd)
             {
                 /*free cmd_path if it doesn't exist and get next token_path*/
                 free(cmd_path);
-                token_path = strtok(NULL, delim);
+                token_path = my_token(NULL, delim);
             }
         }
     }
@@ -214,9 +235,9 @@ void *handle_path(char *cmd)
     /*free path_copy if cmd_path doesn't exist*/
     free(path_copy);
     /*check if cmd is a path*/
-    if (stat(cmd, &st) == 0)
+    if (cmd != NULL && stat(cmd, &st) == 0)
     {
-        return (cmd);
+       return (cmd);
     }
 
     return (NULL);

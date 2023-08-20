@@ -12,87 +12,82 @@ int main(int ac, char **av)
     ssize_t nread;
     char *lineptr = NULL;
     size_t size = 0;
-    char buffer[20] = "my_shell$ ";
+    char buffer[12] = "my_shell$ ";
     char *line_copy, *token, delim[] = " ";
-    int token_count, i;
+    int token_count, i, status;
     pid_t child;
 
 
     (void)ac;
 
-    write(STDOUT_FILENO, buffer, 20);
-    fflush(stdout);/*flushes the output buffer of a stream*/
+    write(STDOUT_FILENO, buffer, 11);
 
     while (1)
     {
         nread = my_getline(&lineptr, &size, stdin);
-        if (nread ==  -1 || nread == EOF)
-           return (-1);
+        if (nread == -1)
+        {
+            free(lineptr);
+            return -1;
+        }
 
-        line_copy = malloc(sizeof(char) * nread);
+        line_copy = malloc(sizeof(char) * nread + 1);
         if (line_copy == NULL)
         {
             perror("malloc");
+            free(lineptr);
             exit(EXIT_FAILURE);
         }
-
-        strcpy(line_copy, lineptr);
+        _strcpy(line_copy, lineptr);
         token = my_token(line_copy, delim);
         token_count = 0;
 
-        while (token != NULL)
-        {
+        while (token != NULL) {
             token = my_token(NULL, delim);
             token_count++;
         }
 
         av = malloc(sizeof(char *) * (token_count + 1));
-        if (av == NULL)
-        {
-            perror("malloc");
-            exit(EXIT_FAILURE);
+        if (av == NULL) {
+            free(line_copy);
+            return -1;
         }
 
         token = my_token(lineptr, delim);
-        for (i = 0; i < token_count && token != NULL; i++)
-        {
-            av[i] = malloc(sizeof(char) * strlen(token) + 1);
-            if (av[i] == NULL){
-                perror("malloc");
-                exit(EXIT_FAILURE);
+        for (i = 0; i < token_count; i++) {
+            av[i] = malloc(sizeof(char) * _strlen(token) + 1);
+            if (av[i] == NULL) {
+                free(line_copy);
+                free(av);
+                return -1;
             }
-            strcpy(av[i], token);
+            _strcpy(av[i], token);
             token = my_token(NULL, delim);
         }
         av[i] = NULL;
 
         child = fork();
-        if (child < 0)
-        {
+        if (child < 0) {
             perror("fork");
+            free(line_copy);
+            for (i = 0; i < token_count; i++)
+               free(av[i]);
+            free(av);
             exit(EXIT_FAILURE);
         } else if (child == 0) {
-            execute(av, av[1]);
-            /*child cleanup*/
-            free(lineptr);
-            free(av);
-            exit(EXIT_SUCCESS);
+            exec(av);
         } else {
-            if (strcmp(av[0], "env") == 0)
-            {
-                shell_env();/*print environment*/
-            }
-
+            wait(&status);
             if (strcmp(av[0], "exit") == 0)
             {
                 shell_exit(av[0], av[1]);
-                free(lineptr);
-                free(av);
-                exit(EXIT_SUCCESS); /*Exit the shell*/
             }
+            free(line_copy);
+            for (i = 0; i < token_count; i++)
+                free(av[i]);
+            free(av);
         }
-
-        write(STDOUT_FILENO, buffer, 20);
+        write(STDOUT_FILENO, buffer, 11);
     }
 
     free(lineptr);

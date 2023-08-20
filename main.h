@@ -14,12 +14,17 @@
 #include <sys/stat.h>
 
 /*prototypes*/
-void execute(char **av, char *args);
+void exec(char **args);
 void *handle_path(char *cmd);
 void shell_exit(char *exit_the_shell, char *args);
 void shell_env();
 char *_strchr(const char *s, int c);
 char *str_pointer_break(char *str1, const char *str2);
+char *_getenv(const char *name);
+char *_strcat(char *dest, const char *src);
+size_t _strlen(const char *s);
+char *_strcpy(char *dest, const char *src);
+int _putenv(char *string);
 
 /*global variables*/
 extern char **environ;
@@ -40,6 +45,10 @@ extern s_strtok my_strtok;
 ssize_t my_getline(char **buffer, size_t *len, FILE *stream);
 /*strtok function*/
 char *my_token(char *str, const char *delim);
+/*Setenv function*/
+int _setenv(const char *name, const char *value);
+/*Unsetenv function*/
+int _unsetenv(const char *name);
 
 
 #endif/*MAIN_H*/
