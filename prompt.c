@@ -1,4 +1,5 @@
 #include "main.h"
+#include "getline.h"
 
 /**
  * main - main function of the shell

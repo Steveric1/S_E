@@ -45,9 +45,6 @@ typedef struct
     char *current;
 }s_strtok;
 
-
-/*getline function*/
-ssize_t my_getline(char **buffer, size_t *len, FILE *stream);
 /*strtok function*/
 char *my_token(char *str, const char *delim);
 /*Setenv function*/
@@ -60,6 +57,8 @@ int cd_command(char *dir);
 void handle_child(char *line_copy, char **av, int token_count);
 /*Handle builtin command*/
 int handle_builtin_command(char *command_exec, char **arg);
+/*Handle path conversion*/
+char *path_convert(const char *path, const char *cmd);
 
 
 #endif/*MAIN_H*/

@@ -62,7 +62,7 @@ char *_getenv(const char *name)
     for (env = environ; *env != NULL; env++)
     {
         env_name = *env;
-        delimeter = strstr(env_name, "=");
+        delimeter = _strchr(env_name, '=');
 
         if (delimeter != NULL)
         {
