@@ -8,7 +8,7 @@
 void shell_exit(char *exit_the_shell, char *args)
 {
     int status;
-    if (strcmp(exit_the_shell, "exit") == 0)
+    if (_strcmp(exit_the_shell, "exit") == 0)
     {
         if (args != NULL)
         {
@@ -45,7 +45,7 @@ void shell_env()
 int _setenv(const char *name, const char *value)
 {
     int len = 0;
-    char *new_string = NULL, *existing = NULL;
+    char *new_string = NULL;
 
     len = _strlen(name) + _strlen(value) + 2;
     new_string = malloc(sizeof(char) * len);
@@ -67,8 +67,7 @@ int _setenv(const char *name, const char *value)
         free(new_string);
         return (-1);
     }
-
-    /*free(new_string);*/
+ 
     return (0);
 }
 
@@ -83,13 +82,14 @@ int _unsetenv(const char *name)
     int environ_len = 0, found = 0;
     char **new_environ = NULL;
 
+
     len = _strlen(name);
     while (environ[environ_len] != NULL)
         environ_len++;
     
     for (i = 0; environ[i] != NULL; i++)
     {
-        if (strncmp(environ[i], name, len) == 0)
+        if (_strncmp(environ[i], name, len) == 0)
         {
             found = 1;
             free(environ[i]);

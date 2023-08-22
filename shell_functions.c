@@ -88,9 +88,10 @@ ssize_t my_getline(char **buffer, size_t *len, FILE *stream)
  * @delim: delimiter
  * Return: pointer to the next token
  */
-s_strtok my_strtok;
+
 char *my_token(char *str, const char *delim)
 {
+   static s_strtok my_strtok;
    char *start, *end;
 
    if (str != NULL)
@@ -136,31 +137,7 @@ void exec(char **arg)
         cmd_path = handle_path(command_exec);
         if (cmd_path != NULL)
             command_exec = cmd_path;
-        /*Handle setenv built-in*/
-        if (strcmp(command_exec, "setenv") == 0)
-        {
-            int  setenv_result = _setenv(arg[1], arg[2]);
-            if (setenv_result == -1)
-                perror("setenv");
-            exit(EXIT_SUCCESS);
-        }
-        /*Handle unsetenv*/
-        if (strcmp(command_exec, "unsetenv") == 0)
-        {
-            int unsetenv_result = _unsetenv(arg[1]);
-            if (unsetenv_result == -1)
-                perror("unsetenv");
-            exit(EXIT_SUCCESS);
-        }
-        /*Handle env */
-        if (strcmp(command_exec, "env") == 0)
-        {
-            shell_env();
-            exit(EXIT_SUCCESS);
-        }
-
-        /*Handle exit*/
-        shell_exit(command_exec, arg[1]);
+        handle_builtin_command(command_exec, arg);
         if (execve(command_exec, arg, environ) == -1)
         {
             perror("./prompt");
@@ -201,8 +178,8 @@ void *handle_path(char *cmd)
         while (token_path != NULL)
         {
             /*get length of token_path and cmd*/
-            path_len = strlen(token_path);
-            cmd_len = strlen(cmd);
+            path_len = _strlen(token_path);
+            cmd_len = _strlen(cmd);
 
             /*allocate memory for cmd_path*/
             cmd_path = malloc(sizeof(char) * (path_len + cmd_len + 2));

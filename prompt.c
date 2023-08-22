@@ -14,10 +14,7 @@ int main(int ac, char **av)
     size_t size = 0;
     char buffer[12] = "my_shell$ ";
     char *line_copy, *token, delim[] = " ";
-    int token_count, i, status;
-    pid_t child;
-
-
+    int token_count, i;
     (void)ac;
 
     write(STDOUT_FILENO, buffer, 11);
@@ -65,28 +62,7 @@ int main(int ac, char **av)
             token = my_token(NULL, delim);
         }
         av[i] = NULL;
-
-        child = fork();
-        if (child < 0) {
-            perror("fork");
-            free(line_copy);
-            for (i = 0; i < token_count; i++)
-               free(av[i]);
-            free(av);
-            exit(EXIT_FAILURE);
-        } else if (child == 0) {
-            exec(av);
-        } else {
-            wait(&status);
-            if (strcmp(av[0], "exit") == 0)
-            {
-                shell_exit(av[0], av[1]);
-            }
-            free(line_copy);
-            for (i = 0; i < token_count; i++)
-                free(av[i]);
-            free(av);
-        }
+        handle_child(line_copy, av, token_count);
         write(STDOUT_FILENO, buffer, 11);
     }
 

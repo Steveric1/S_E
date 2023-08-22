@@ -13,6 +13,9 @@
 #include <signal.h>
 #include <sys/stat.h>
 
+/*macros*/
+#define DIR_SIZE 1024
+
 /*prototypes*/
 void exec(char **args);
 void *handle_path(char *cmd);
@@ -25,6 +28,8 @@ char *_strcat(char *dest, const char *src);
 size_t _strlen(const char *s);
 char *_strcpy(char *dest, const char *src);
 int _putenv(char *string);
+int _strcmp(char *s1, char *s2);
+int _strncmp(const char *s1, const char *s2, size_t n);
 
 /*global variables*/
 extern char **environ;
@@ -39,7 +44,7 @@ typedef struct
 {
     char *current;
 }s_strtok;
-extern s_strtok my_strtok;
+
 
 /*getline function*/
 ssize_t my_getline(char **buffer, size_t *len, FILE *stream);
@@ -49,6 +54,12 @@ char *my_token(char *str, const char *delim);
 int _setenv(const char *name, const char *value);
 /*Unsetenv function*/
 int _unsetenv(const char *name);
+/*Change directory*/
+int cd_command(char *dir);
+/*Handle child function*/
+void handle_child(char *line_copy, char **av, int token_count);
+/*Handle builtin command*/
+int handle_builtin_command(char *command_exec, char **arg);
 
 
 #endif/*MAIN_H*/
