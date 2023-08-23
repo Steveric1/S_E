@@ -12,6 +12,7 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 
 /*macros*/
 #define DIR_SIZE 1024
@@ -30,6 +31,8 @@ char *_strcpy(char *dest, const char *src);
 int _putenv(char *string);
 int _strcmp(char *s1, char *s2);
 int _strncmp(const char *s1, const char *s2, size_t n);
+int _isspace(int c);
+bool is_empty(const char *str);
 
 /*global variables*/
 extern char **environ;
@@ -45,6 +48,7 @@ typedef struct
     char *current;
 }s_strtok;
 
+
 /*strtok function*/
 char *my_token(char *str, const char *delim);
 /*Setenv function*/
@@ -59,6 +63,13 @@ void handle_child(char *line_copy, char **av, int token_count);
 int handle_builtin_command(char *command_exec, char **arg);
 /*Handle path conversion*/
 char *path_convert(const char *path, const char *cmd);
+/*Helper function for cd*/
+int cmd_helper(char *current_direc, const char *dir);
+int change_direc(const char *dir);
+int get_working_dir(const char *dir);
 
-
+/*Main function helper*/
+void print_prompt(int is_interactive);
+int main_helper(char **av, size_t size, ssize_t nread);
+void print_prompt(int is_interactive);
 #endif/*MAIN_H*/

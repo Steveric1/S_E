@@ -32,6 +32,8 @@ ssize_t read_into_buffer(char *buffer, size_t len, FILE *stream)
     {
         perror("read");
         return (-1);
+    } else if (r == 0) {
+        return (0);
     }
     return (r);
 }
@@ -78,6 +80,8 @@ ssize_t perform_getline(char *buffer, size_t len, size_t *i, ssize_t r)
         if (buffer[*i] == '\n')
         {
             buffer[*i] = '\0';
+            (*i)++;
+            char_read++;
             return (char_read);
         }
 

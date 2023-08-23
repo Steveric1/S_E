@@ -16,4 +16,5 @@ ssize_t read_into_buffer(char *buffer, size_t len, FILE *stream);
 void expand_buffer(char **buffer, size_t *len);
 ssize_t perform_getline(char *buffer, size_t len, size_t *i, ssize_t r);
 ssize_t my_getline(char **buffer, size_t *len, FILE *stream);
+
 #endif /*GETLINE_H*/

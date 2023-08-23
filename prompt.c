@@ -2,36 +2,32 @@
 #include "getline.h"
 
 /**
- * main - main function of the shell
- * @ac: argument count
+ * main_helper - helper function for main
  * @av: argument vector
- * Return: 0 on success
- */
-
-int main(int ac, char **av)
+ * @size: size
+ * @nread: number of bytes read
+ * Return: 0 on success, -1 on failure
+*/
+int main_helper(char **av, size_t size, ssize_t nread)
 {
-    ssize_t nread;
-    char *lineptr = NULL;
-    size_t size = 0;
-    char buffer[12] = "my_shell$ ";
-    char *line_copy, *token, delim[] = " ";
-    int token_count, i;
-    (void)ac;
-
-    write(STDOUT_FILENO, buffer, 11);
+    char *lineptr = NULL, *line_copy, *token, delim[] = " ";
+    int token_count, i, is_interactive;
+    is_interactive = isatty(STDIN_FILENO);
+    print_prompt(is_interactive);
 
     while (1)
     {
         nread = my_getline(&lineptr, &size, stdin);
-        if (nread == -1)
-        {
+        if (nread == -1 || nread == EOF) {
             free(lineptr);
             return -1;
         }
-
+        if (is_empty(lineptr)) {
+            print_prompt(is_interactive);
+            continue;
+        }
         line_copy = malloc(sizeof(char) * nread + 1);
-        if (line_copy == NULL)
-        {
+        if (line_copy == NULL){
             perror("malloc");
             free(lineptr);
             exit(EXIT_FAILURE);
@@ -39,20 +35,17 @@ int main(int ac, char **av)
         _strcpy(line_copy, lineptr);
         token = my_token(line_copy, delim);
         token_count = 0;
-
         while (token != NULL) {
             token = my_token(NULL, delim);
             token_count++;
         }
-
         av = malloc(sizeof(char *) * (token_count + 1));
         if (av == NULL) {
             free(line_copy);
             return -1;
         }
-
         token = my_token(lineptr, delim);
-        for (i = 0; i < token_count; i++) {
+        for (i = 0; i < token_count && token != NULL; i++) {
             av[i] = malloc(sizeof(char) * _strlen(token) + 1);
             if (av[i] == NULL) {
                 free(line_copy);
@@ -64,9 +57,25 @@ int main(int ac, char **av)
         }
         av[i] = NULL;
         handle_child(line_copy, av, token_count);
-        write(STDOUT_FILENO, buffer, 11);
+        print_prompt(is_interactive);
     }
-
     free(lineptr);
     exit(EXIT_SUCCESS);
 }
+
+/**
+ * main - main function of the shell
+ * @ac: argument count
+ * @av: argument vector
+ * Return: 0 on success
+ */
+
+int main(int ac __attribute__((unused)), char **av)
+{
+    ssize_t nread = 0;
+    size_t size = 0;
+ 
+    main_helper(av, size, nread);
+    return (0);
+}
+

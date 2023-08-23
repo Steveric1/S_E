@@ -100,3 +100,14 @@ int _strncmp(const char *s1, const char *s2, size_t n) {
     }
     return 0;
 }
+
+/**
+ * _isspace - checks for white space characters
+ * @c: character to be checked
+ * Return: 1 if c is a white-space character, 0 otherwise
+*/
+int _isspace(int c)
+{
+    return (c == ' ' || c == '\t' || c == '\n' ||
+            c == '\v' || c == '\f' || c == '\r');
+}
