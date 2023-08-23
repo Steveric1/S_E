@@ -45,7 +45,7 @@ void print_prompt(int is_interactive)
  * @n: n
  * @stream: stream
 */
-ssize_t read_input(char **line, size_t *n, FILE *stream)
+/*ssize_t read_input(char **line, size_t *n, FILE *stream)
 {
     ssize_t nread;
     nread = getline(line, n, stream);
@@ -54,4 +54,4 @@ ssize_t read_input(char **line, size_t *n, FILE *stream)
         return -1;
     }
     return nread;
-}
+}*/

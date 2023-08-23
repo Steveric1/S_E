@@ -72,4 +72,5 @@ int get_working_dir(const char *dir);
 void print_prompt(int is_interactive);
 int main_helper(char **av, size_t size, ssize_t nread);
 void print_prompt(int is_interactive);
+/*ssize_t read_input(char **line, size_t *n, FILE *stream);*/
 #endif/*MAIN_H*/
