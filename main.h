@@ -13,16 +13,20 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 /*macros*/
 #define DIR_SIZE 1024
+#define IN 1
+#define OUT 0
 
 /*prototypes*/
-void exec(char **args);
-void *handle_path(char *cmd);
-void shell_exit(char *exit_the_shell, char *args);
-void shell_env();
+int exec(char **arg_es, char **arg, char *buffer, int count);
+void *handle_path(char **cmd);
+int check_builtin(char **av, char *buffer, int count);
+void print_env(void);
 char *_strchr(const char *s, int c);
+char *_strstr(const char *haystack, const char *needle);
 char *str_pointer_break(char *str1, const char *str2);
 char *_getenv(const char *name);
 char *_strcat(char *dest, const char *src);
@@ -32,12 +36,20 @@ int _putenv(char *string);
 int _strcmp(char *s1, char *s2);
 int _strncmp(const char *s1, const char *s2, size_t n);
 int _isspace(int c);
-bool is_empty(const char *str);
+void handle_ctrl_c(int sig __attribute__((unused)));
+int prompt(char **buffer);
+int word_counter(char *str, char *seperator);
+char *path_initialize(char **pwd);
+char *_strdup(char *str);
+int write_error_stderr(int error);
+void printerror(char **av, int count, char **arg);
+void free_arg(char **arr);
+void free_all(const unsigned int n, ...);
+char **argument_seperator(char *buffer, char *seperator);
 
 /*global variables*/
 extern char **environ;
 /*strtok struct declaration*/
-
 /**
  * struct s_strtok - strtok struct
  * @current: current position of the string
@@ -48,7 +60,6 @@ typedef struct
     char *current;
 }s_strtok;
 
-
 /*strtok function*/
 char *my_token(char *str, const char *delim);
 /*Setenv function*/
@@ -56,21 +67,12 @@ int _setenv(const char *name, const char *value);
 /*Unsetenv function*/
 int _unsetenv(const char *name);
 /*Change directory*/
-int cd_command(char *dir);
-/*Handle child function*/
-void handle_child(char *line_copy, char **av, int token_count);
-/*Handle builtin command*/
-int handle_builtin_command(char *command_exec, char **arg);
-/*Handle path conversion*/
-char *path_convert(const char *path, const char *cmd);
+char *path_convert(char *pwd, char *path);
+char *check_working_dir(char **pwd, char **path);
 /*Helper function for cd*/
 int cmd_helper(char *current_direc, const char *dir);
 int change_direc(const char *dir);
 int get_working_dir(const char *dir);
+int simple_shell_loop(char **argv, int count);
 
-/*Main function helper*/
-void print_prompt(int is_interactive);
-int main_helper(char **av, size_t size, ssize_t nread);
-void print_prompt(int is_interactive);
-/*ssize_t read_input(char **line, size_t *n, FILE *stream);*/
 #endif/*MAIN_H*/

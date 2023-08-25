@@ -1,57 +1,76 @@
 #include "main.h"
+#include "getline.h"
 
 /**
- * is_empty - checks if a string is empty
- * @str: string to check
- * return: true if empty, false if not
- */
-
-bool is_empty(const char *str) {
-    while (*str != '\0') {
-        if (!_isspace(*str)) {
-            return false;
-        }
-        str++;
-    }
-    return true;
-}
-
-/*int tokenization(char *line_cp, char *delim, int *token_count)
-{
-    char *token;
-    token = my_token(line_cp, delim);
-    while (token != NULL) {
-        token = my_token(NULL, delim);
-        *token_count += 1;
-    }
-    return (*token_count);
-}*/
-
-/**
- * print_prompt - prints the prompt
- * @is_interactive: checks if the shell is interactive
+ * printerror - prints error message
+ * @av: name of the program
+ * @count: number of commands entered
+ * @arg: command entered
  * Return: void
- */
-void print_prompt(int is_interactive)
+*/
+
+void printerror(char **av, int count, char **arg)
 {
-    if (isatty(is_interactive)) {
-        write(STDOUT_FILENO, "my_shell$ ", 10);
-    }
+	write(STDERR_FILENO, av[0], _strlen(av[0]));
+	write(STDERR_FILENO, ": ", 2);
+	write_error_stderr(count);
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, arg[0], _strlen(arg[0]));
+	write(STDERR_FILENO, ": not found\n", 12);
 }
 
 /**
- * read_input - reads the input from the user
- * @line: line
- * @n: n
- * @stream: stream
+ * prompt - prompts the user for input
+ * @buffer: buffer to store input
+ * Return: number of bytes read
 */
-/*ssize_t read_input(char **line, size_t *n, FILE *stream)
+int prompt(char **buffer)
 {
-    ssize_t nread;
-    nread = getline(line, n, stream);
-    if (nread == -1 || nread == EOF) {
-        free(*line);
-        return -1;
-    }
-    return nread;
-}*/
+	ssize_t nread = 0;
+	size_t size = 0;
+	int is_interactive = isatty(STDIN_FILENO);
+
+	if (is_interactive != 0)
+	    write(STDOUT_FILENO, "my_shell$ ", 10);
+	nread = my_getline(buffer, &size, stdin);
+
+	return (nread);
+}
+
+/**
+ * handle_ctrl_c - handles ctrl + c signal
+ * @sig: signal
+*/
+void handle_ctrl_c(int sig __attribute__((unused)))
+{
+	write(1, "\nmy_shell$ ", 12);
+	signal(SIGINT, handle_ctrl_c);
+}
+
+/**
+ * free_all - frees all memory
+ * @n: number of arguments
+ * Return: void
+*/
+void free_all(const unsigned int n, ...)
+{
+	va_list args;
+	unsigned int i;
+	char *ptr;
+
+	va_start(args, n);
+	for (i = 0; i < n; i++)
+	{
+		ptr = va_arg(args, char *);
+		free(ptr);
+	}
+	va_end(args);
+}
+/**
+ * free_arg - frees an array of strings
+ * @arr: array of strings
+*/
+void free_arg(char **arr)
+{
+	free(arr);
+}
